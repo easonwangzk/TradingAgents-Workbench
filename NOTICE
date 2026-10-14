@@ -1,0 +1,31 @@
+TradingAgents Workbench
+
+This is an independent modified distribution of TauricResearch/TradingAgents.
+Upstream: https://github.com/TauricResearch/TradingAgents
+Source baseline: v0.4.0, commit 9dee508c44662702281a8dbaad1f7b42179b5ba7.
+Upstream research authors: Yijia Xiao, Edward Sun, Di Luo and Wei Wang.
+Paper: https://arxiv.org/abs/2412.20138
+
+The upstream Apache License, Version 2.0, is retained in LICENSE.
+Original source notices, author attribution and applicable artwork are retained.
+This distribution is not an official upstream release and is not endorsed by
+the upstream authors or by any model, data, cloud or chart provider.
+
+Modifications include a local/hosted research workbench, isolated account state,
+provider gateway and execution coordination, saved assistant conversations,
+market charts, owner administration, interface/build sources and tests.
+This public distribution replaces installation-specific identifiers with
+examples and excludes personal data, credentials and operational histories.
+Modified source files carry a change notice where their format permits one;
+example configuration, deployment templates and tests are distribution changes.
+The fresh repository history is not the full upstream development history.
+
+Bundled third-party software remains under its own licenses. Full redistributed
+license texts are in licenses/ and are indexed by THIRD_PARTY_NOTICES.md.
+
+TradingView Lightweight Charts
+Copyright (c) 2025 TradingView, Inc.
+https://www.tradingview.com/
+The exact upstream chart NOTICE is retained in
+licenses/lightweight-charts-5.0.9-NOTICE, and the application retains its visible
+TradingView attribution link.

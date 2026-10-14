@@ -1,0 +1,82 @@
+{
+  "distribution_notice": "Modified public example. All verification and approval metadata is synthetic; validate your own model and pricing before use.",
+  "environment": {
+    "TAWB_FOUNDRY_ENDPOINT": "https://example-foundry.services.ai.azure.com/openai/v1/",
+    "TAWB_FOUNDRY_DEPLOYMENT": "gpt-5.6-sol",
+    "TAWB_FOUNDRY_API_VERSION": "2025-04-01-preview",
+    "TAWB_FOUNDRY_MODEL_FAMILY": "gpt-5.6-sol",
+    "TAWB_FOUNDRY_MODEL_VERSION": "2026-07-09",
+    "TAWB_FOUNDRY_CONTEXT_WINDOW_TOKENS": "1050000",
+    "TAWB_FOUNDRY_MAX_OUTPUT_TOKENS": "128000",
+    "TAWB_FOUNDRY_PRICING_VERSION": "gpt56sol-20260901-upper-bound",
+    "TAWB_FOUNDRY_INPUT_MICROUSD_PER_MILLION_TOKENS": "8000000",
+    "TAWB_FOUNDRY_CACHED_INPUT_MICROUSD_PER_MILLION_TOKENS": "8000000",
+    "TAWB_FOUNDRY_OUTPUT_MICROUSD_PER_MILLION_TOKENS": "30000000",
+    "TAWB_FOUNDRY_VERIFICATION_STATUS": "pending",
+    "TAWB_FOUNDRY_VERIFICATION_EVIDENCE": "docs/self-hosting.md:synthetic-example-requires-operator-verification",
+    "TAWB_FOUNDRY_VERIFICATION_RECORDED_AT": "2000-01-01"
+  },
+  "additional_models": [
+    {
+      "endpoint": "https://example-foundry.services.ai.azure.com/openai/v1/",
+      "deployment": "gpt-5.6-luna",
+      "api_version": "2025-04-01-preview",
+      "model_family": "gpt-5.6-luna",
+      "model_version": "2026-07-09",
+      "context_window_tokens": 1050000,
+      "max_output_tokens": 128000,
+      "pricing": {
+        "version": "example-luna-v1",
+        "input_microusd_per_million_tokens": 400000,
+        "cached_input_microusd_per_million_tokens": 400000,
+        "output_microusd_per_million_tokens": 1800000
+      },
+      "verification": {
+        "status": "pending",
+        "evidence": "docs/self-hosting.md:synthetic-example-requires-operator-verification",
+        "recorded_at": "2000-01-01",
+        "valid_until": "2099-01-01T00:00:00Z"
+      }
+    },
+    {
+      "endpoint": "https://example-foundry.services.ai.azure.com/openai/v1/",
+      "deployment": "gpt-5.6-terra",
+      "api_version": "2025-04-01-preview",
+      "model_family": "gpt-5.6-terra",
+      "model_version": "2026-07-09",
+      "context_window_tokens": 1050000,
+      "max_output_tokens": 128000,
+      "pricing": {
+        "version": "example-terra-v1",
+        "input_microusd_per_million_tokens": 4000000,
+        "cached_input_microusd_per_million_tokens": 4000000,
+        "output_microusd_per_million_tokens": 18000000
+      },
+      "verification": {
+        "status": "pending",
+        "evidence": "docs/self-hosting.md:synthetic-example-requires-operator-verification",
+        "recorded_at": "2000-01-01",
+        "valid_until": "2099-01-01T00:00:00Z"
+      }
+    }
+  ],
+  "evidence": {
+    "sku": "GlobalStandard",
+    "region": "eastus2",
+    "capacity": 1,
+    "currency": "USD",
+    "unit": "one million tokens",
+    "effective_date": "2000-01-01",
+    "valid_until_exclusive": "2099-01-01T00:00:00Z",
+    "accounting": "Synthetic conservative long-context accounting example, not approved pricing or exact Azure charges. Cached tokens use the same example input debit. No input-length tier inference.",
+    "cache_policy": "Gateway forces prompt_cache_options.mode=explicit and rejects all explicit breakpoints, disabling reads and writes.",
+    "retail_api": "https://prices.azure.com/api/retail/prices?api-version=2023-01-01-preview&$filter=armRegionName%20eq%20%27eastus2%27%20and%20contains(meterName,%20%275.6%20sol%27)%20and%20contains(meterName,%20%27Std%20Gl%27)",
+    "short_context_usd": {"input": 4, "cached_input": 0.4, "cache_write": 5, "output": 20},
+    "long_context_usd": {"input": 8, "cached_input": 0.8, "cache_write": 10, "output": 30},
+    "long_input_meter_id": "f70915aa-c5a3-552b-8a3a-ceb11f185edc",
+    "long_output_meter_id": "8577a8d0-fad6-5a38-bdb9-034a831a6aa1",
+    "model_limits": "https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure#gpt-56",
+    "no_cache_contract": "https://learn.microsoft.com/en-us/azure/foundry/openai/how-to/prompt-caching#can-i-disable-prompt-caching",
+    "promotion": "https://azure.microsoft.com/en-us/blog/gpt-5-6-now-available-in-microsoft-foundry/"
+  }
+}

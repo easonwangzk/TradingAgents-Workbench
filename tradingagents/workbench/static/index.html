@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="zh-CN" data-home="true" data-screen="home">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TradingAgents · 研究工作台</title>
+  <script>
+    (() => {
+      const param = new URLSearchParams(window.location.search).get("scoutTheme");
+      const theme =
+        param || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+      let language = "auto";
+      try { language = localStorage.getItem("tradingagents.studio.language") || "auto"; } catch {}
+      const choice = ["auto", "zh", "en"].includes(language) ? language : "auto";
+      document.documentElement.lang = (choice === "auto" ? /^zh(?:-|$)/i.test(navigator.language || "") : choice === "zh") ? "zh-CN" : "en";
+    })();
+  </script>
+  <link rel="modulepreload" href="/static/vendor.js">
+  <link rel="stylesheet" href="/static/styles.css">
+  <script type="module" src="/static/boot.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#workspace">跳至报告工作区</a>
+  <div id="workbench" class="workbench" data-sidebar-open="true" data-screen="home">
+    <header class="topbar">
+      <button id="sidebar-toggle" class="icon-button" type="button" aria-label="收起侧栏" title="收起侧栏" aria-controls="sidebar" aria-expanded="true"><i data-lucide="panel-left-close"></i></button>
+      <div class="breadcrumb"><span>工作空间</span><i data-lucide="chevron-right"></i><strong id="breadcrumb-studio">研究任务</strong></div>
+      <div class="topbar-end"><span class="local-label">LOCALHOST</span><span id="service-state" class="service-state" role="status">连接中</span><button id="refresh" class="icon-button" type="button" title="刷新配置、历史与任务" aria-label="刷新配置、历史与任务"><i data-lucide="refresh-cw"></i></button></div>
+    </header>
+    <button id="sidebar-backdrop" class="sidebar-backdrop" type="button" aria-label="关闭侧栏" tabindex="-1" hidden></button>
+    <aside id="sidebar" class="sidebar" aria-label="工作空间导航">
+      <button id="workspace-home-button" class="brand brand-home" type="button" aria-label="工作台首页" title="工作台首页"><span class="brand-mark"><i data-lucide="activity"></i></span><span><strong>TradingAgents</strong><small>RESEARCH STUDIO</small></span></button>
+      <nav id="workspace-navigation" class="workspace-navigation" aria-label="工作空间">
+        <button id="research-tasks-entry" class="workspace-nav-item" type="button"><i data-lucide="file-text"></i><span>研究任务</span></button>
+        <button id="research-assistant-entry" class="workspace-nav-item" type="button" hidden><i data-lucide="sparkles"></i><span>研究助手</span></button>
+        <button id="market-entry" class="workspace-nav-item" type="button" hidden><i data-lucide="chart-candlestick"></i><span>行情</span></button>
+        <button id="management-entry" class="workspace-nav-item" type="button" hidden><i data-lucide="users"></i><span>管理</span></button>
+      </nav>
+    </aside>
+    <dialog id="research-drawer" class="research-drawer" aria-labelledby="research-drawer-title"><header class="drawer-heading"><div><span class="eyebrow">NEW RESEARCH</span><h2 id="research-drawer-title">研究参数</h2></div><button id="close-research-drawer" class="icon-button" type="button" aria-label="关闭研究参数" title="关闭"><i data-lucide="x"></i></button></header><div id="config-drawer-content"></div></dialog>
+    <main id="workspace" class="workspace" tabindex="-1">
+      <section id="workspace-home" class="workspace-home" aria-labelledby="home-title">
+        <div class="home-heading"><span class="eyebrow">TRADINGAGENTS / RESEARCH STUDIO</span><h1 id="home-title">独立视角，共同求证。</h1><p>证券研究工作台</p></div>
+        <div id="platform-scene" class="motion-scene platform-scene" data-scene="platform" aria-hidden="true"><div class="scene-fallback"><i></i><i></i><i></i><i></i></div></div>
+        <div class="home-actions"><button class="primary-button" type="button" data-open-research><i data-lucide="plus"></i>新建研究<i data-lucide="arrow-right"></i></button><button id="research-assistant-home-entry" type="button" class="secondary-button" hidden><i data-lucide="sparkles"></i>研究助手</button></div>
+        <div class="home-index"><span>01 / 市场</span><span>02 / 基本面</span><span>03 / 新闻</span><span>04 / 情绪</span></div>
+      </section>
+      <section id="workspace-tasks" class="workspace-tasks" aria-labelledby="tasks-title" hidden>
+        <header class="tasks-heading"><h1 id="tasks-title">研究任务</h1><button id="new-research" class="primary-button" type="button"><i data-lucide="plus"></i>新建研究</button></header>
+        <section id="side-history" class="tasks-content" aria-label="研究任务列表">
+          <div class="tasks-toolbar"><div class="task-filters" role="group" aria-label="任务状态"><button type="button" data-task-filter="all" aria-pressed="true">全部</button><button type="button" data-task-filter="active" aria-pressed="false">进行中</button><button type="button" data-task-filter="completed" aria-pressed="false">已完成</button><button type="button" data-task-filter="interrupted" aria-pressed="false">已中断</button></div><label class="history-search" for="history-search"><i data-lucide="search"></i><input id="history-search" type="search" placeholder="代码、日期、状态…" aria-label="搜索运行历史" autocomplete="off"></label></div>
+          <div class="tasks-list-heading"><span>运行记录</span><span id="history-updated" class="muted small">--</span></div>
+          <p id="history-error" class="error-message" role="alert" hidden></p><p id="history-state" class="empty-inline" role="status">正在读取历史…</p><div id="history-list" class="history-list" aria-label="运行记录"></div>
+        </section>
+      </section>
+      <section id="management-screen" class="admin-workspace" aria-labelledby="management-title" hidden>
+        <header class="tasks-heading"><h1 id="management-title">管理</h1><button id="admin-refresh" class="icon-button" type="button" title="刷新管理数据" aria-label="刷新管理数据"><i data-lucide="refresh-cw"></i></button></header>
+        <div class="workspace-tabs admin-tabs" role="tablist" aria-label="管理内容">
+          <button id="admin-overview-tab" data-admin-tab="overview" type="button" role="tab" aria-controls="admin-overview-panel" aria-selected="true"><i data-lucide="activity"></i>概览</button>
+          <button id="admin-accounts-tab" data-admin-tab="accounts" type="button" role="tab" aria-controls="admin-accounts-panel" aria-selected="false" tabindex="-1"><i data-lucide="users"></i>账户与权限</button>
+          <button id="admin-usage-tab" data-admin-tab="usage" type="button" role="tab" aria-controls="admin-usage-panel" aria-selected="false" tabindex="-1"><i data-lucide="chart-no-axes-column-increasing"></i>用量</button>
+          <button id="admin-audit-tab" data-admin-tab="audit" type="button" role="tab" aria-controls="admin-audit-panel" aria-selected="false" tabindex="-1"><i data-lucide="file-text"></i>审计</button>
+        </div>
+        <p id="admin-status" class="admin-status" role="status" aria-live="polite"></p>
+        <section id="admin-overview-panel" role="tabpanel" aria-labelledby="admin-overview-tab">
+          <h2>账户</h2><dl class="admin-metrics"><div><dt>账户总数</dt><dd data-admin-metric="accounts.total">&mdash;</dd></div><div><dt>已启用</dt><dd data-admin-metric="accounts.enabled">&mdash;</dd></div><div><dt>已禁用</dt><dd data-admin-metric="accounts.disabled">&mdash;</dd></div></dl>
+          <h2>研究运行</h2><dl class="admin-metrics"><div><dt>运行总数</dt><dd data-admin-metric="runs.total">&mdash;</dd></div><div><dt>成功</dt><dd data-admin-metric="runs.succeeded">&mdash;</dd></div><div><dt>失败</dt><dd data-admin-metric="runs.failed">&mdash;</dd></div><div><dt>进行中</dt><dd data-admin-metric="runs.active">&mdash;</dd></div></dl>
+          <h2>托管身份月度额度 <small id="admin-budget-month" class="muted">&mdash;</small></h2><dl class="admin-metrics"><div><dt>月度限额</dt><dd data-admin-metric="budget.limit_microusd">&mdash;</dd></div><div><dt>已使用</dt><dd data-admin-metric="budget.spent_microusd">&mdash;</dd></div><div><dt>已预留</dt><dd data-admin-metric="budget.reserved_microusd">&mdash;</dd></div><div><dt>可用</dt><dd data-admin-metric="budget.available_microusd">&mdash;</dd></div></dl>
+          <p id="admin-overview-coverage" class="admin-coverage"></p><h2>最近错误</h2>
+          <div class="admin-table-scroll"><table class="admin-table"><caption class="sr-only">最近错误</caption><thead><tr><th scope="col">账户</th><th scope="col">运行</th><th scope="col">错误代码</th><th scope="col">时间</th></tr></thead><tbody id="admin-error-rows"></tbody></table></div><p id="admin-errors-empty" class="empty-inline">暂无错误记录</p>
+        </section>
+        <section id="admin-accounts-panel" role="tabpanel" aria-labelledby="admin-accounts-tab" hidden>
+          <div class="admin-toolbar"><label class="history-search" for="admin-account-search"><i data-lucide="search"></i><input id="admin-account-search" type="search" placeholder="姓名或邮箱…" aria-label="搜索账户"></label><label for="admin-account-filter"><span class="sr-only">账户状态</span><select id="admin-account-filter"><option value="all">全部账户</option><option value="enabled">已启用</option><option value="disabled">已禁用</option></select></label><span id="admin-account-version" class="muted small"></span></div>
+          <div class="admin-table-scroll"><table class="admin-table admin-accounts-table"><caption class="sr-only">账户与权限</caption><thead><tr><th scope="col">账户</th><th scope="col">已禁用</th><th scope="col">研究</th><th scope="col">助手</th><th scope="col">行情</th><th scope="col">操作</th></tr></thead><tbody id="admin-account-rows"></tbody></table></div><p id="admin-account-empty" class="empty-inline">暂无匹配账户</p>
+          <form id="admin-invite-form" class="admin-invite-form"><label for="admin-invite-email">邀请邮箱<input id="admin-invite-email" type="email" maxlength="254" required autocomplete="off"></label><button id="admin-invite-submit" class="secondary-button" type="submit"><i data-lucide="plus"></i>生成邀请链接</button></form>
+          <p id="admin-action-result" class="inline-note" hidden></p>
+        </section>
+        <section id="admin-usage-panel" role="tabpanel" aria-labelledby="admin-usage-tab" hidden>
+          <div class="admin-toolbar"><div class="task-filters" role="group" aria-label="用量区间"><button type="button" data-admin-days="7" aria-pressed="true">7 天</button><button type="button" data-admin-days="30" aria-pressed="false">30 天</button><button type="button" data-admin-days="90" aria-pressed="false">90 天</button></div><label for="admin-usage-account"><span class="sr-only">账户筛选</span><select id="admin-usage-account"><option value="">全部账户</option></select></label></div>
+          <div class="admin-table-scroll"><table class="admin-table"><caption class="sr-only">账户用量</caption><thead><tr><th scope="col">账户</th><th scope="col">研究次数</th><th scope="col">研究失败</th><th scope="col">助手调用</th><th scope="col">输入 tokens</th><th scope="col">输出 tokens</th><th scope="col">平台费用 USD</th><th scope="col">外部费用 USD</th><th scope="col">最近活动</th></tr></thead><tbody id="admin-usage-rows"></tbody></table></div><p id="admin-usage-empty" class="empty-inline">暂无用量记录</p><p id="admin-usage-coverage" class="admin-coverage"></p>
+        </section>
+        <section id="admin-audit-panel" role="tabpanel" aria-labelledby="admin-audit-tab" hidden>
+          <div class="admin-table-scroll"><table class="admin-table"><caption class="sr-only">账户审计</caption><thead><tr><th scope="col">时间</th><th scope="col">操作者</th><th scope="col">目标账户</th><th scope="col">操作</th><th scope="col">之前</th><th scope="col">之后</th><th scope="col">结果</th></tr></thead><tbody id="admin-audit-rows"></tbody></table></div><p id="admin-audit-empty" class="empty-inline">暂无审计记录</p><p id="admin-audit-coverage" class="admin-coverage"></p>
+        </section>
+      </section>
+      <dialog id="admin-confirm-dialog" class="assistant-rename-dialog" aria-labelledby="admin-confirm-title"><h2 id="admin-confirm-title">确认操作</h2><p id="admin-confirm-description"></p><div class="assistant-rename-actions"><button id="admin-confirm-cancel" class="secondary-button" type="button">取消</button><button id="admin-confirm-accept" class="primary-button" type="button"><i data-lucide="arrow-right"></i>确认</button></div></dialog>
+      <section id="market-screen" class="market-screen" data-market-view="list" aria-labelledby="market-title" hidden>
+        <header class="tasks-heading"><h1 id="market-title">行情</h1><div class="market-header-actions"><label for="market-source" class="sr-only">行情来源</label><select id="market-source"><option value="yfinance">Yahoo Finance</option><option value="alpha_vantage">Alpha Vantage</option></select><label class="market-auto"><input id="market-auto" type="checkbox" checked><span>自动刷新</span></label><button id="market-refresh" class="icon-button" type="button" title="刷新行情" aria-label="刷新行情"><i data-lucide="refresh-cw"></i></button></div></header>
+        <p id="market-status" class="market-status" role="status" aria-live="polite"></p>
+        <div class="market-layout">
+          <section id="market-list" class="market-list" aria-label="自选证券">
+            <div class="market-list-heading"><h2>自选证券</h2><span id="market-count" class="muted small">0 / 12</span></div>
+            <form id="market-add-form" class="market-add-form"><label for="market-symbol" class="sr-only">添加证券代码</label><input id="market-symbol" maxlength="24" placeholder="证券代码" autocomplete="off" spellcheck="false" required><button id="market-add" class="icon-button" type="submit" title="添加证券" aria-label="添加证券"><i data-lucide="plus"></i></button></form>
+            <label class="market-search" for="market-search"><i data-lucide="search"></i><input id="market-search" type="search" placeholder="代码或名称…" aria-label="搜索自选证券" autocomplete="off"></label>
+            <table class="market-table"><caption class="sr-only">自选证券行情</caption><colgroup><col class="market-security-col"><col><col><col class="market-delete-col"></colgroup><thead><tr><th scope="col" aria-sort="ascending"><button type="button" data-market-sort="symbol">证券<i data-lucide="arrow-up-down"></i></button></th><th scope="col"><button type="button" data-market-sort="price">价格<i data-lucide="arrow-up-down"></i></button></th><th scope="col"><button type="button" data-market-sort="change_percent">涨跌 %<i data-lucide="arrow-up-down"></i></button></th><th scope="col"><span class="sr-only">删除</span></th></tr></thead><tbody id="market-rows"></tbody></table>
+            <p id="market-empty" class="empty-inline">自选列表为空</p>
+          </section>
+          <section id="market-detail" class="market-detail" aria-label="证券详情">
+            <div class="market-detail-heading"><button id="market-back" class="icon-button" type="button" title="返回自选列表" aria-label="返回自选列表"><i data-lucide="arrow-left"></i></button><div class="market-security"><h2 id="market-selected">--</h2><p id="market-name" class="muted">--</p></div><button id="market-research" class="secondary-button" type="button" disabled><i data-lucide="file-plus-2"></i>新建研究</button></div>
+            <div class="market-price-line"><strong data-market-field="price">--</strong><span data-market-field="currency">--</span><span data-market-field="change">--</span><span data-market-field="change_percent">--</span></div>
+            <dl class="market-ohlcv"><div><dt>开盘</dt><dd data-market-field="open">--</dd></div><div><dt>最高</dt><dd data-market-field="high">--</dd></div><div><dt>最低</dt><dd data-market-field="low">--</dd></div><div><dt>昨收</dt><dd data-market-field="previous_close">--</dd></div><div><dt>成交量</dt><dd data-market-field="volume">--</dd></div><div><dt>交易所</dt><dd data-market-field="exchange">--</dd></div></dl>
+            <div class="market-chart-toolbar"><div class="task-filters" role="group" aria-label="价格区间"><button type="button" data-market-range="1m" aria-pressed="true">1M</button><button type="button" data-market-range="3m" aria-pressed="false">3M</button><button type="button" data-market-range="6m" aria-pressed="false">6M</button><button type="button" data-market-range="1y" aria-pressed="false">1Y</button><button type="button" data-market-range="5y" aria-pressed="false">5Y</button></div><div class="market-chart-modes" role="group" aria-label="图表类型"><button type="button" class="icon-button" data-market-mode="line" aria-pressed="true" title="收盘线" aria-label="收盘线"><i data-lucide="chart-line"></i></button><button type="button" class="icon-button" data-market-mode="candles" aria-pressed="false" title="蜡烛图" aria-label="蜡烛图"><i data-lucide="chart-candlestick"></i></button></div></div>
+            <div class="market-chart-area"><div id="market-chart" aria-label="每日价格图"></div><p id="market-chart-empty" class="empty-inline">选择证券查看日线</p></div>
+            <footer class="market-provenance"><span id="market-provenance">--</span><span id="market-as-of">--</span><a href="https://www.tradingview.com/" target="_blank" rel="noopener noreferrer">TradingView Lightweight Charts</a></footer>
+          </section>
+        </div>
+      </section>
+      <section id="research-assistant-screen" class="research-assistant-screen" data-assistant-view="list" aria-labelledby="assistant-title" hidden>
+        <header class="tasks-heading"><h1 id="assistant-title">研究助手</h1><button id="assistant-new" class="primary-button" type="button"><i data-lucide="plus"></i>新建对话</button></header>
+        <section id="assistant-records" class="assistant-sessions tasks-content" aria-label="已保存的对话">
+          <div class="tasks-toolbar"><div class="task-filters" role="group" aria-label="对话状态"><button type="button" data-assistant-filter="all" aria-pressed="true">全部</button><button type="button" data-assistant-filter="active" aria-pressed="false">进行中</button><button type="button" data-assistant-filter="completed" aria-pressed="false">已完成</button><button type="button" data-assistant-filter="interrupted" aria-pressed="false">已中断</button></div><label class="history-search" for="assistant-search"><i data-lucide="search"></i><input id="assistant-search" type="search" placeholder="对话名称、内容…" aria-label="搜索对话" autocomplete="off"></label></div>
+          <div class="tasks-list-heading"><span>已保存的对话</span></div><div id="assistant-session-list" class="assistant-session-list"></div>
+        </section>
+        <p id="assistant-status" class="assistant-status" role="status"></p>
+        <section id="assistant-chat" class="assistant-chat" aria-label="研究助手对话" hidden><button id="assistant-back" class="return-tasks" type="button"><i data-lucide="arrow-left"></i>已保存的对话</button><div id="assistant-messages" class="assistant-messages" role="log" aria-live="polite"></div><form id="assistant-composer" class="assistant-composer"><label class="sr-only" for="assistant-input">输入消息</label><textarea id="assistant-input" maxlength="4000" rows="3" placeholder="询问你的运行历史或 TradingAgents…" disabled></textarea><div class="assistant-compose-footer"><span>GPT-5.6 Luna · 会消耗模型额度</span><button id="assistant-send" class="primary-button" type="submit" disabled><i data-lucide="send"></i>发送</button></div></form></section>
+        <button id="assistant-close" class="return-tasks" type="button"><i data-lucide="arrow-left"></i>研究任务</button>
+      </section>
+      <dialog id="assistant-rename-dialog" class="assistant-rename-dialog" aria-labelledby="assistant-rename-title"><form id="assistant-rename-form"><h2 id="assistant-rename-title">重命名对话</h2><label for="assistant-rename-input">对话名称<input id="assistant-rename-input" maxlength="80" required></label><p id="assistant-rename-status" class="error-message" role="alert"></p><div class="assistant-rename-actions"><button id="assistant-rename-cancel" class="secondary-button" type="button">取消</button><button class="primary-button" type="submit">保存</button></div></form></dialog>
+      <section id="side-config" class="side-panel" aria-label="研究参数">
+        <div class="side-heading"><h2>研究参数</h2><button id="reset-draft" class="icon-button" type="button" aria-label="恢复默认配置" title="恢复默认配置" disabled><i data-lucide="rotate-ccw"></i></button></div>
+        <form id="config-form" novalidate>
+          <div class="form-scroll">
+            <p id="config-note" class="inline-note" role="status">正在读取配置…</p>
+            <a id="reauthorize" class="reauthorize" href="/auth/login" hidden>重新登录或授权</a>
+            <fieldset id="config-fields" disabled>
+              <legend class="sr-only">研究配置</legend>
+              <fieldset class="mode-group" aria-label="运行模式"><div class="segments"><label><input type="radio" name="mode" value="analysis" checked><span>研究分析</span></label><label><input type="radio" name="mode" value="connectivity"><span>连通测试</span></label></div></fieldset>
+              <div class="field-pair ticker-date"><label for="ticker">证券代码<input id="ticker" name="ticker" maxlength="24" autocomplete="off" spellcheck="false" placeholder="MSFT" required></label><label for="analysis_date">分析日期<input id="analysis_date" name="analysis_date" type="date" required></label></div>
+              <div class="field-pair"><label for="asset_type">资产类型<select id="asset_type" name="asset_type"><option value="stock">股票 · Stock</option><option value="etf">基金 · ETF</option><option value="forex" disabled>外汇 · 暂不支持</option><option value="crypto" disabled>加密资产 · 暂不支持</option><option value="index" disabled>指数 · 暂不支持</option></select></label><label for="language">报告语言<select id="language" name="language"><option value="Chinese">中文</option><option value="English">English</option></select></label></div>
+              <fieldset class="analyst-group"><legend>分析师</legend><div id="analyst-options" class="analyst-options"></div></fieldset>
+              <div class="field-pair rounds"><div><label for="debate_rounds">投资辩论轮数</label><div class="stepper"><button type="button" data-step="-1" data-for="debate_rounds" aria-label="减少投资辩论轮数" title="减少投资辩论轮数"><i data-lucide="minus"></i></button><input id="debate_rounds" name="debate_rounds" type="number" min="1" max="3" step="1" required><button type="button" data-step="1" data-for="debate_rounds" aria-label="增加投资辩论轮数" title="增加投资辩论轮数"><i data-lucide="plus"></i></button></div></div><div><label for="risk_rounds">风险辩论轮数</label><div class="stepper"><button type="button" data-step="-1" data-for="risk_rounds" aria-label="减少风险辩论轮数" title="减少风险辩论轮数"><i data-lucide="minus"></i></button><input id="risk_rounds" name="risk_rounds" type="number" min="1" max="3" step="1" required><button type="button" data-step="1" data-for="risk_rounds" aria-label="增加风险辩论轮数" title="增加风险辩论轮数"><i data-lucide="plus"></i></button></div></div></div>
+              <div class="model-line"><i data-lucide="cpu"></i><span>当前模型</span><strong id="model-name">gpt-5.6-sol</strong></div>
+            </fieldset>
+            <div id="research-advanced" class="research-advanced"><details class="vendor-details"><summary>数据源与回退顺序</summary><div id="vendor-options" class="vendor-options"></div></details></div>
+          </div>
+          <div class="form-actions"><p id="form-error" class="error-message" role="alert" hidden></p><button id="start-run" class="primary-button" type="submit" disabled><i data-lucide="play"></i><span id="start-label">开始研究</span></button><button id="test-connectivity" class="secondary-button" type="button" disabled><i data-lucide="wifi"></i>连通测试</button></div>
+        </form>
+      </section>
+      <div id="workspace-run" hidden>
+      <button id="return-tasks" class="return-tasks" type="button"><i data-lucide="arrow-left"></i>研究任务</button>
+      <section class="run-heading">
+        <div class="run-identity"><div class="eyebrow">RESEARCH / <span id="run-mode">研究分析</span></div><div class="title-line"><h1 id="run-title">尚未选择任务</h1><span id="run-status" class="status" hidden></span></div><div id="run-meta" class="run-meta">等待任务记录</div></div>
+        <div class="run-actions"><button id="stop-run" class="secondary-button danger-button" type="button" disabled><i data-lucide="square"></i>停止</button><button id="rerun" class="secondary-button" type="button" disabled title="按所选任务的原始请求重新运行"><i data-lucide="rotate-ccw"></i>重跑</button><span class="action-divider"></span><button id="download-json" class="export-button" type="button" data-download="json" title="下载任务 JSON" disabled><i data-lucide="arrow-down-to-line"></i>JSON</button><button id="download-markdown" class="export-button" type="button" data-download="markdown" title="下载 Markdown 报告" disabled><i data-lucide="file-text"></i>Markdown</button></div>
+      </section>
+      <p id="workspace-error" class="workspace-error error-message" role="alert" hidden></p>
+      <form id="reconcile-form" class="reconcile-form" hidden><label id="reconcile-execution-wrap">Azure 执行名称<input id="reconcile-execution" autocomplete="off" required></label><button id="reconcile-submit" type="submit"><i data-lucide="refresh-cw"></i>核对执行</button></form>
+      <div id="resume-actions" class="reconcile-form" hidden><button id="resume-run" type="button" hidden disabled><i data-lucide="play"></i>继续执行</button></div>
+      <section class="progress-strip" aria-label="任务进度"><span id="activity-dot" class="activity-dot"></span><span id="stage" role="status">尚未启动</span><span id="run-updated" class="muted small">--</span></section>
+      <details id="request-details" class="request-details" hidden><summary>任务参数 <span id="execution-name" class="mono"></span></summary><div class="request-detail-body"><dl id="request-values"></dl><button id="load-request" type="button" class="secondary-button"><i data-lucide="arrow-left"></i>载入配置</button></div><details class="request-raw"><summary>原始请求 JSON</summary><pre id="request-json" class="raw-json"></pre></details></details>
+      <section id="flow-section" class="flow-section" aria-label="研究阶段"><div class="flow-caption"><span class="label">RESEARCH FLOW / 研究进程</span><span class="live"><span class="dot" id="flow-dot"></span><span id="stage-description">尚未启动</span></span></div><ol id="phase-list" class="flow"></ol></section>
+      <div class="studio-content"><div class="studio-reader">
+      <div class="workspace-tabs" role="tablist" aria-label="任务内容"><button id="reports-tab" type="button" role="tab" data-view="reports" aria-controls="reports-panel" aria-selected="true"><i data-lucide="file-text"></i>研究报告 <span id="report-count" class="count">0</span></button><button id="agent-process-tab" type="button" role="tab" data-view="agent-process" aria-controls="agent-process-panel" aria-selected="false" tabindex="-1"><i data-lucide="activity"></i>Agent 过程</button><button id="connectivity-tab" type="button" role="tab" data-view="connectivity" aria-controls="connectivity-panel" aria-selected="false" tabindex="-1"><i data-lucide="wifi"></i>数据连通</button><button id="events-tab" type="button" role="tab" data-view="events" aria-controls="events-panel" aria-selected="false" tabindex="-1"><i data-lucide="activity"></i>运行事件 <span id="event-count" class="count">0</span></button></div>
+      <section id="reports-panel" class="content-panel report-layout" role="tabpanel" aria-labelledby="reports-tab"><nav id="report-nav" class="report-nav report-quick-nav" aria-label="报告章节"><span class="section-label">报告章节</span><div id="section-list"></div></nav><details id="report-directory" class="report-directory"><summary>完整报告目录<i data-lucide="chevron-down"></i></summary><div id="report-directory-content" class="report-directory-content"></div></details><div id="report-reader" class="report-reader"><div id="report-empty" class="empty-state"><i data-lucide="file-text"></i><h2>暂无研究报告</h2><p id="report-empty-detail">尚无已验证的任务结果</p></div><div id="decision" class="decision" hidden><span class="section-label">最终决策</span><p id="decision-text"></p></div><div id="report-articles"></div></div></section>
+      <section id="agent-process-panel" class="content-panel agent-process-panel" role="tabpanel" aria-labelledby="agent-process-tab" hidden><div class="panel-heading"><h2>Agent 过程</h2><span class="muted small">等待过程数据</span></div></section>
+      <section id="connectivity-panel" class="content-panel connectivity-panel" role="tabpanel" aria-labelledby="connectivity-tab" hidden><div class="panel-heading"><h2>提供商连通状态</h2><span id="provider-count" class="muted small">未测试</span></div><p id="provider-empty" class="empty-inline">尚无连通测试结果</p><div class="table-scroll"><table id="provider-table" hidden><caption class="sr-only">提供商、连接状态、耗时与诊断</caption><thead><tr><th scope="col">提供商</th><th scope="col">状态</th><th scope="col">耗时</th><th scope="col">诊断</th></tr></thead><tbody id="provider-rows"></tbody></table></div></section>
+      <section id="events-panel" class="content-panel events-panel" role="tabpanel" aria-labelledby="events-tab" hidden><div class="panel-heading"><h2>详细运行事件</h2><span id="event-filter-count" class="muted small"></span></div><div class="event-toolbar"><label>事件类型<select id="event-kind"><option value="all">全部事件</option><option value="phase">阶段 / 工具</option><option value="report">报告</option><option value="usage">用量</option><option value="connectivity">连通性</option><option value="result">结果</option><option value="error">错误</option></select></label><label>搜索载荷<input id="event-query" type="search" placeholder="搜索运行事件…"></label></div><p id="events-empty" class="empty-inline">尚无运行事件</p><ol id="event-list" class="event-list"></ol></section>
+      </div><aside class="studio-inspector" aria-label="研究摘要">
+        <section class="inspector-section model-section"><div class="inspector-title"><span>模型与用量</span><i data-lucide="chart-no-axes-column-increasing"></i></div><div class="studio-model"><span class="model-icon"><i data-lucide="cpu"></i></span><div class="model-copy"><strong id="studio-selected-model">--</strong><small>任务模型快照</small></div></div><section class="usage-strip" aria-label="模型与工具用量">
+          <dl class="metric-grid"><div class="metric"><dt>模型调用</dt><dd id="stat-llm_calls">--</dd></div><div class="metric"><dt>工具调用</dt><dd id="stat-tool_calls">--</dd></div><div class="metric"><dt>输入 tokens</dt><dd id="stat-input_tokens">--</dd></div><div class="metric"><dt>输出 tokens</dt><dd id="stat-output_tokens">--</dd></div></dl>
+          <figure id="token-chart" class="token-chart" hidden><figcaption>Token 构成 <span id="token-total"></span></figcaption><div id="token-bars" class="token-bars" role="img"><span id="input-bar"></span><span id="output-bar"></span></div><div class="chart-legend"><span class="input-key">输入</span><span class="output-key">输出</span></div></figure>
+        </section></section>
+        <section class="inspector-section team-section"><div class="inspector-title"><span>研究团队</span><i data-lucide="users"></i></div><div id="studio-team" class="studio-team"></div></section>
+        <section class="inspector-section source-coverage"><div class="inspector-title"><span>数据覆盖</span><i data-lucide="globe"></i></div><div id="studio-sources" class="studio-sources"></div></section>
+      </aside></div>
+      <footer class="workspace-footer"><span>仅供研究 · 不执行交易</span><span id="sync-state">等待连接</span></footer>
+      </div>
+    </main>
+  </div>
+  <noscript><p class="workspace-error">此工作台需要启用 JavaScript。</p></noscript>
+</body>
+</html>
