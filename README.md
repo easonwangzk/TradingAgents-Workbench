@@ -52,6 +52,87 @@ flowchart TB
 
 The Job uses an Azure manual trigger, but the Web coordinator starts it automatically after an authorized submission. The hosted Worker receives run configuration and a scoped capability, not provider keys or Foundry tokens. The gateway checks account/run permissions, model/provider configuration, request schema and destination before dispatch. Assistant and Market run in the Web process, not a research Job.
 
+### End-to-End Sequence
+
+The normal email-hosted research path is shown below. Research execution, status reconciliation and browser progress delivery overlap; closing the browser does not stop the background coordinator.
+
+```mermaid
+sequenceDiagram
+  autonumber
+  actor Browser
+  participant Web as FastAPI Web
+  participant Runs as Run coordinator
+  participant Worker as ACA Job / Worker
+  participant Gateway as Provider gateway
+  participant APIs as Model / data APIs
+  participant State as Encrypted Blob / CAS
+  Browser->>Web: Sign in, save model and data settings
+  Web->>State: Validate account, persist encrypted settings
+  Browser->>Web: Submit research with submission ID
+  Web->>Runs: Authorize, deduplicate and snapshot request
+  Runs->>State: Persist run intent and settings snapshot
+  Runs-->>Web: Accepted run ID
+  Web-->>Browser: 202 Accepted
+  par Research execution
+    Runs->>State: Claim pending work using CAS
+    Runs->>Worker: Prepare and start Job with scoped capability
+    loop Selected analysts, debate, Trader, risk and portfolio stages
+      Worker->>Gateway: Capability-scoped model or data request
+      Gateway->>State: Check permissions, reserve model budget
+      Gateway->>APIs: Inject credentials and dispatch allowed request
+      APIs-->>Gateway: Response and available usage
+      Gateway->>State: Settle known model usage
+      Gateway-->>Worker: Validated response
+      Worker->>Web: Capability-protected stage, tool and report events
+      Web->>State: Validate and persist events
+    end
+  and Execution reconciliation
+    loop Until terminal state or authorization deadline
+      Runs->>Worker: Poll execution, reconcile uncertain operations
+      Runs->>State: Persist status and collected results
+    end
+    Runs->>State: Finalize outcome and revoke capability
+  and Browser progress
+    Browser->>Web: Open authenticated SSE stream
+    loop While viewing the run
+      Web->>State: Read account-scoped event snapshot
+      Web-->>Browser: Stage/tool updates and heartbeats
+    end
+  end
+  Browser->>Web: Open or export completed research
+  Web->>State: Read account-scoped saved result
+  State-->>Web: Reports, decision and usage
+  Web-->>Browser: Report view or JSON/Markdown export
+```
+
+This is stage/event streaming, not model-token streaming. The coordinator also collects validated console events from Log Analytics as a fallback. Stops and ambiguous Azure operations follow the durable reconciliation path rather than an automatic duplicate start. Assistant, Market and Management use their Web services directly; they do not traverse the research Job path.
+
+### Repository Layout
+
+This map describes the public source distribution. Child paths under `tradingagents/` and `workbench/` are relative to those directories; production data, deployment records and private history are not included.
+
+```mermaid
+flowchart LR
+  Repo["TradingAgents-Workbench/"] --> Entry["cli/ + main.py<br/>Local CLI and Python example"]
+  Repo --> Package["tradingagents/"]
+  Repo --> Config["config/<br/>Example installation and pricing configuration"]
+  Repo --> Delivery["infra/ + scripts/<br/>Bicep, Dockerfiles, builds and deployment examples"]
+  Repo --> Checks["tests/ + .github/workflows/<br/>Python, frontend and CI validation"]
+  Repo --> Docs["docs/ + assets/<br/>Self-hosting, prototypes and illustrations"]
+  Repo --> Legal["LICENSE + NOTICE<br/>THIRD_PARTY_NOTICES.md + licenses/<br/>Attribution and dependency licenses"]
+  Package --> Agents["agents/<br/>Analyst, research, Trader and risk roles"]
+  Package --> Graph["graph/<br/>LangGraph orchestration and state"]
+  Package --> Data["dataflows/<br/>Research tools and data vendors"]
+  Package --> Models["llm_clients/<br/>Model provider adapters"]
+  Package --> Defaults["default_config.py<br/>Engine defaults"]
+  Package --> Workbench["workbench/"]
+  Workbench --> Runtime["public_runtime.py + email_server.py<br/>Hosted Web and application lifecycle"]
+  Workbench --> Services["public_*.py<br/>Auth, settings, gateway, state and workspaces"]
+  Workbench --> Execution["public_execution.py + public_hosted_runs.py<br/>Job control and durable coordination"]
+  Workbench --> Worker["worker.py + public_worker.py<br/>Graph runner and host callbacks"]
+  Workbench --> Static["static/<br/>Browser modules and bundled assets"]
+```
+
 ### Research Engine
 
 ```mermaid
