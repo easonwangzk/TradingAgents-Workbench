@@ -109,28 +109,47 @@ This is stage/event streaming, not model-token streaming. The coordinator also c
 
 ### Repository Layout
 
-This map describes the public source distribution. Child paths under `tradingagents/` and `workbench/` are relative to those directories; production data, deployment records and private history are not included.
+Selected paths in the public source distribution are shown below. Production data, deployment records and private history are not included.
 
-```mermaid
-flowchart LR
-  Repo["TradingAgents-Workbench/"] --> Entry["cli/ + main.py<br/>Local CLI and Python example"]
-  Repo --> Package["tradingagents/"]
-  Repo --> Config["config/<br/>Example installation and pricing configuration"]
-  Repo --> Delivery["infra/ + scripts/<br/>Bicep, Dockerfiles, builds and deployment examples"]
-  Repo --> Checks["tests/ + .github/workflows/<br/>Python, frontend and CI validation"]
-  Repo --> Docs["docs/ + assets/<br/>Self-hosting, prototypes and illustrations"]
-  Repo --> Legal["LICENSE + NOTICE<br/>THIRD_PARTY_NOTICES.md + licenses/<br/>Attribution and dependency licenses"]
-  Package --> Agents["agents/<br/>Analyst, research, Trader and risk roles"]
-  Package --> Graph["graph/<br/>LangGraph orchestration and state"]
-  Package --> Data["dataflows/<br/>Research tools and data vendors"]
-  Package --> Models["llm_clients/<br/>Model provider adapters"]
-  Package --> Defaults["default_config.py<br/>Engine defaults"]
-  Package --> Workbench["workbench/"]
-  Workbench --> Runtime["public_runtime.py + email_server.py<br/>Hosted Web and application lifecycle"]
-  Workbench --> Services["public_*.py<br/>Auth, settings, gateway, state and workspaces"]
-  Workbench --> Execution["public_execution.py + public_hosted_runs.py<br/>Job control and durable coordination"]
-  Workbench --> Worker["worker.py + public_worker.py<br/>Graph runner and host callbacks"]
-  Workbench --> Static["static/<br/>Browser modules and bundled assets"]
+```text
+TradingAgents-Workbench/
+├── README.md                          Project overview and setup
+├── pyproject.toml                     Python dependencies and entrypoints
+├── main.py                            Python research example
+├── cli/                               Interactive command-line application
+├── tradingagents/                     Research engine and workbench package
+│   ├── agents/                        Analyst, research, Trader and risk roles
+│   ├── graph/                         LangGraph orchestration and state
+│   ├── dataflows/                     Research tools and data vendors
+│   ├── llm_clients/                   Model provider adapters
+│   ├── default_config.py              Research engine defaults
+│   └── workbench/                     Web services and research execution
+│       ├── server.py                  Local browser workbench
+│       ├── public_runtime.py          Hosted application lifecycle
+│       ├── email_server.py            Email-authenticated FastAPI Web
+│       ├── public_execution.py        Azure Job control and reconciliation
+│       ├── public_hosted_runs.py      Durable run coordination
+│       ├── public_gateway.py          Credential-isolated provider dispatch
+│       ├── public_*.py                Auth, settings, state and workspaces
+│       ├── worker.py                  Research graph runner
+│       ├── public_worker.py           Hosted Worker protocol and callbacks
+│       └── static/                    Browser modules and bundled assets
+│           ├── index.html             Research workspace page
+│           ├── app.js                 Browser application entrypoint
+│           └── package.json           Frontend dependencies and build scripts
+├── config/                            Example installation and pricing config
+├── infra/                             Bicep templates and Dockerfiles
+├── scripts/                           Build, startup and deployment tooling
+├── tests/                             Python and frontend validation
+├── .github/
+│   └── workflows/
+│       └── ci.yml                     Python test, install and lint gates
+├── docs/                              Self-hosting guides and prototypes
+├── assets/                            Project images and illustrations
+├── LICENSE                            Apache-2.0 project license
+├── NOTICE                             Upstream attribution and modifications
+├── THIRD_PARTY_NOTICES.md             Third-party dependency attribution
+└── licenses/                          Bundled dependency license texts
 ```
 
 ### Research Engine
